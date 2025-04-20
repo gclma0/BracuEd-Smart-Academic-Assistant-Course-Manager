@@ -4,6 +4,44 @@ import { auth } from "@/auth";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+type DeleteCourseActionParams = {
+  courseId: string;
+};
+
+export async function deleteCourseAction({
+  courseId,
+}: DeleteCourseActionParams) {
+  try {
+    const session = await auth();
+
+    if (!session || session.user.role !== "FACULTY") {
+      return { error: "Unauthorized" };
+    }
+
+    const courseExist = await db.course.findFirst({
+      where: {
+        id: courseId,
+      },
+    });
+
+    if (!courseExist) {
+      return { error: "Course not found!" };
+    }
+
+    await db.course.delete({
+      where: {
+        id: courseExist.id,
+      },
+    });
+
+    revalidatePath("/dashboard/courses");
+    return { success: "Course deleted." };
+  } catch (err) {
+    console.log(err);
+    return { error: "Something went wrong!" };
+  }
+}
+
 const bracuStudentID = [
   "21201187",
   "21201140",

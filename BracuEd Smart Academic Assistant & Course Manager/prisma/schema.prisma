@@ -22,8 +22,8 @@ model Profile {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  courses Course[]
-
+  courses      Course[]
+  bookMarks    BookMark[]
   facultySlots ConsultationSlot[] @relation("FacultySlots")
   bookedSlots  ConsultationSlot[] @relation("StudentBookings")
   Booking      Booking[]
@@ -31,6 +31,7 @@ model Profile {
   Submission   Submission[]
   Notification Notification[]
   Enrollment   Enrollment[]
+  Resource     Resource[]
 
   @@map("profiles")
 }
@@ -50,6 +51,7 @@ model Course {
   faculty    Profile      @relation(fields: [facultyId], references: [id])
   Assignment Assignment[]
   Enrollment Enrollment[]
+  Resource   Resource[]
 
   @@map("courses")
 }
@@ -61,7 +63,6 @@ model Enrollment {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  // Relations
   student Profile @relation(fields: [studentId], references: [id], onDelete: Cascade)
   course  Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
@@ -106,6 +107,39 @@ model Booking {
 
   @@unique([slotId, studentId])
   @@map("bookings")
+}
+
+model Resource {
+  id          String     @id @default(uuid())
+  title       String
+  description String?
+  type        String
+  url         String
+  topic       String?
+  courseId    String     @map("course_id")
+  facultyId   String     @map("faculty_id")
+  bookMarks   BookMark[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  course  Course  @relation(fields: [courseId], references: [id])
+  faculty Profile @relation(fields: [facultyId], references: [id])
+
+  @@map("resources")
+}
+
+model BookMark {
+  id         String   @id @default(uuid())
+  profile    Profile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId  String
+  resourceId String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([profileId, resourceId])
+  @@map("bookmarks")
 }
 
 model Assignment {

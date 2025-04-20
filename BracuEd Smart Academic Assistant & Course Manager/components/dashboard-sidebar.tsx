@@ -26,7 +26,7 @@ export default async function DashboardSidebar() {
   const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: Home },
     { name: "Courses", href: "/dashboard/courses", icon: BookOpen },
-    { name: "Resources", href: "#", icon: FileText },
+    { name: "Resources", href: "/dashboard/resources", icon: FileText },
     { name: "Consultations", href: "/dashboard/consultations", icon: Calendar },
     ...(user.role === "FACULTY"
       ? [{ name: "Attendance", href: "#", icon: User }]
@@ -35,7 +35,7 @@ export default async function DashboardSidebar() {
   ];
 
   return (
-    <div className="flex flex-col w-64  border-r border-gray-200 bg-white z-50">
+    <div className="fixed h-screen flex flex-col w-64 border-r border-gray-200 bg-white z-50 top-0 left-0">
       {/* Header */}
       <div className="flex items-center h-16 px-4 border-b shrink-0">
         <h2 className="text-xl font-bold text-blue-600">BracuEd</h2>

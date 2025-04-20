@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,9 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Course, Enrollment, Profile } from "@prisma/client";
-import { Calendar, Clock, User } from "lucide-react";
+import { Calendar, Clock, Loader2, Trash, User } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useTransition } from "react";
+import { toast } from "sonner";
+import { deleteCourseAction } from "./actions";
 
 type CourseWithFacultyAndEnrollment = Course & {
   faculty: Pick<Profile, "name">;
@@ -24,12 +28,25 @@ export default function CourseCard({
   course: CourseWithFacultyAndEnrollment;
   role: string;
 }) {
+  const [isPending, startTransition] = useTransition();
+
+  const handleDelete = (courseId: string) => {
+    startTransition(async () => {
+      const res = await deleteCourseAction({ courseId });
+      if (res.error) {
+        toast("Error message", { description: res.error });
+      } else {
+        toast("Success message", { description: res.success });
+      }
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="capitalize">{course.title}</CardTitle>
         <CardDescription>
-          <div className="flex items-center text-sm mb-2">
+          <div className="flex  items-center text-sm mb-2">
             Course code: {course.courseCode.toUpperCase()}
           </div>
           {role === "STUDENT" ? (
@@ -64,12 +81,22 @@ export default function CourseCard({
           {course.description}
         </p>
       </CardContent>
-      <CardFooter>
-        <Link href={`#`} className="w-full">
+      <CardFooter className="flex flex-col gap-2 w-full">
+        <Link href={`/dashboard/courses/${course.id}`} className="w-full">
           <Button variant="outline" className="w-full">
             {role === "FACULTY" ? "Manage Course" : "View Course"}
           </Button>
         </Link>
+        <button
+          className="bg-cyan-100 w-full p-2 rounded flex justify-center items-center shadow border"
+          onClick={() => handleDelete(course.id)}
+        >
+          {isPending ? (
+            <Loader2 className="animate-spin " />
+          ) : (
+            <Trash className="text-cyan-600" />
+          )}
+        </button>
       </CardFooter>
     </Card>
   );

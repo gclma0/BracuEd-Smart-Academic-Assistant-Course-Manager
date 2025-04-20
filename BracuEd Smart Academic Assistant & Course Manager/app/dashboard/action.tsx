@@ -35,19 +35,35 @@ export async function updateStatusAction({ id, status, studentId }: Props) {
       return { error: "Slot not found!" };
     }
 
-    await db.booking.update({
-      where: {
-        slotId_studentId: {
-          slotId: id,
-          studentId,
+    if (status === "confirmed") {
+      await db.booking.update({
+        where: {
+          slotId_studentId: {
+            slotId: id,
+            studentId,
+          },
         },
-      },
-      data: {
-        status,
-      },
-    });
-    revalidatePath("/dashboard");
-    return { success: "Request accepted successfully" };
+        data: {
+          status,
+        },
+      });
+      revalidatePath("/dashboard");
+      return { success: "Request accepted successfully" };
+    } else {
+      await db.booking.update({
+        where: {
+          slotId_studentId: {
+            slotId: id,
+            studentId,
+          },
+        },
+        data: {
+          status,
+        },
+      });
+      revalidatePath("/dashboard");
+      return { success: "Request rejected successfully" };
+    }
   } catch (err) {
     return { error: "Something went wrong!", err };
   }

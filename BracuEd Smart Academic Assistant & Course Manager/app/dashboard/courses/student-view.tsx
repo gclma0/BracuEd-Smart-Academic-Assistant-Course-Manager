@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Course, Profile } from "@prisma/client";
+import { Course, Enrollment, Profile } from "@prisma/client";
 import { BookOpen, Calendar, Search, User } from "lucide-react";
 import { useState, useTransition } from "react";
 import CourseCard from "./course-card";
@@ -30,6 +30,7 @@ import { enrollCourseAction } from "./actions";
 import { toast } from "sonner";
 type CourseWithFaculty = Course & {
   faculty: Pick<Profile, "name">;
+  Enrollment: Enrollment[];
 };
 interface StudentViewProps {
   myCourses: CourseWithFaculty[];
@@ -68,12 +69,12 @@ export default function StudentView({
       });
 
       if (result.success) {
-        toast(result.success);
+        toast("Success message", { description: result.success });
         setEnrollmentId("");
         setSelectedCourseId("");
         setEnrollDialogOpen(false);
       } else {
-        toast(result.error);
+        toast("Error message", { description: result.error });
       }
     });
   };

@@ -35,7 +35,7 @@ export default function CancelConsultation({ slotId }: { slotId: string }) {
     <CardFooter className="flex gap-2">
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="outline" className="w-full" disabled={isPending}>
+          <Button variant="destructive" className="w-full" disabled={isPending}>
             Cancel Slot
           </Button>
         </AlertDialogTrigger>

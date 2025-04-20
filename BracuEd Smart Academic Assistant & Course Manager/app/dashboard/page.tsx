@@ -178,13 +178,12 @@ export default async function Dashboard() {
                     key={assignment.id}
                     className="p-2 rounded hover:bg-gray-50"
                   >
-                    <Link
-                      href={`/dashboard/assignments/${assignment.id}`}
-                      className="block"
-                    >
-                      <h3 className="font-medium">{assignment.title}</h3>
+                    <Link href={`#`} className="block">
+                      <h3 className="font-medium capitalize">
+                        {assignment.title}
+                      </h3>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">
+                        <span className="text-gray-500 capitalize">
                           {assignment.course.title}
                         </span>
                         <span className="flex items-center text-amber-600">
@@ -201,15 +200,6 @@ export default async function Dashboard() {
                 No upcoming assignments.
               </p>
             )}
-            <div className="mt-4">
-              <Link href="/dashboard/assignments">
-                <Button variant="outline" size="sm" className="w-full">
-                  {user?.role === "FACULTY"
-                    ? "Manage Assignments"
-                    : "View All Assignments"}
-                </Button>
-              </Link>
-            </div>
           </CardContent>
         </Card>
 

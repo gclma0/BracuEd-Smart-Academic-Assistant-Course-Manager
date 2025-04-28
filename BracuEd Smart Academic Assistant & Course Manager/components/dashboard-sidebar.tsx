@@ -29,7 +29,7 @@ export default async function DashboardSidebar() {
     { name: "Resources", href: "/dashboard/resources", icon: FileText },
     { name: "Consultations", href: "/dashboard/consultations", icon: Calendar },
     ...(user.role === "FACULTY"
-      ? [{ name: "Attendance", href: "#", icon: User }]
+      ? [{ name: "Attendance", href: "/dashboard/attendance", icon: User }]
       : []),
     { name: "Chat Support", href: "/dashboard/chat", icon: MessageSquare },
   ];

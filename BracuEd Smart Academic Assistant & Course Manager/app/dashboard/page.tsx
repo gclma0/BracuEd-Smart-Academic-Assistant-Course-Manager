@@ -23,6 +23,28 @@ import Link from "next/link";
 export default async function Dashboard() {
   const session = await auth();
 
+  const notifications = await db.notification.findMany({
+    where: {
+      Course: {
+        Enrollment: {
+          some: {
+            studentId: session?.user.id,
+          },
+        },
+      },
+    },
+    include: {
+      Course: {
+        select: {
+          courseCode: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
   const user = await db.profile.findUnique({
     where: {
       id: session?.user.id,
@@ -74,6 +96,13 @@ export default async function Dashboard() {
     where: {
       dueDate: {
         gt: today,
+      },
+      course: {
+        Enrollment: {
+          some: {
+            studentId: session?.user.id,
+          },
+        },
       },
     },
     include: {
@@ -246,34 +275,61 @@ export default async function Dashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {pendingRequest.length > 0 ? (
+          {user?.role === "FACULTY" ? (
+            pendingRequest.length > 0 ? (
+              <ul className="space-y-2">
+                {pendingRequest.map((notification) => (
+                  <li
+                    key={notification.id}
+                    className="p-3 rounded border-l-4  border-blue-200 bg-gray-50 shadow"
+                  >
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-medium">
+                        {notification.students[0].name}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        Request to join your{" "}
+                        <span className="font-bold px-1">
+                          {notification.courseCode}
+                        </span>
+                        consultations.
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {relativeData(notification.createdAt)}
+                      </p>
+                      <div className="flex items-center gap-x-2">
+                        <ChangeStatus
+                          slotId={notification.id}
+                          studentId={notification.students[0].id}
+                        />
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-500 text-sm py-2">
+                No new notifications.
+              </p>
+            )
+          ) : notifications.length > 0 ? (
             <ul className="space-y-2">
-              {pendingRequest.map((notification) => (
+              {notifications.map((notification) => (
                 <li
                   key={notification.id}
-                  className="p-3 rounded border-l-4  border-blue-200 bg-gray-50 shadow"
+                  className="p-3 rounded border-l-4 flex justify-between  border-blue-200 bg-gray-50 shadow"
                 >
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-col ">
                     <h3 className="font-medium">
-                      {notification.students[0].name}
+                      {notification.title}-{notification.Course?.courseCode}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Request to join your{" "}
-                      <span className="font-bold px-1">
-                        {notification.courseCode}
-                      </span>
-                      consultations.
+                      {notification.message}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {relativeData(notification.createdAt)}
-                    </p>
-                    <div className="flex items-center gap-x-2">
-                      <ChangeStatus
-                        slotId={notification.id}
-                        studentId={notification.students[0].id}
-                      />
-                    </div>
                   </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {relativeData(notification.createdAt)}
+                  </p>
                 </li>
               ))}
             </ul>

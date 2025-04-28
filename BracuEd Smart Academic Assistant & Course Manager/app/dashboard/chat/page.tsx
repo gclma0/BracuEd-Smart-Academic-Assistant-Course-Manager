@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Bot, Send, User } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import { generateResponse } from "@/lib/gemini";
+
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -24,8 +26,8 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    // Add initial welcome message
     if (messages.length === 0) {
       setMessages([
         {
@@ -39,14 +41,51 @@ export default function Chat() {
   }, [messages.length]);
 
   useEffect(() => {
-    // Scroll to bottom when messages change
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSendMessage = () => {};
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault(); //prevent page from refreshing
+    setLoading(true); //set loading to true
+    if (!input.trim()) return; //if input is empty, return
+    // Create a new message object for the user's input
+
+    const userMessage: Message = { //Message is the interface I created above
+      id: Date.now().toString(),
+      role: "user",
+      content: input,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]); //prev is the previous state of messages(list of previous messages), user message is the new message. ... is the spread operator which is used to copy the previous messages and add the new message to the end of the list.
+    setInput(""); //clear the input field
+    setLoading(true);
+
+    try {
+      const response = await generateResponse(input);
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: response,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      console.log(error);
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: "Sorry, I encountered an error. Please try again.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-12rem)]">
+    <div className="flex flex-col h-[calc(100vh-5rem)]">
       <Card className="flex flex-col h-full">
         <CardHeader>
           <CardTitle className="flex items-center">

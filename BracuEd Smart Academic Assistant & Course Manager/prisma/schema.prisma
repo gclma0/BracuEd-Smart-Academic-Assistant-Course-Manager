@@ -22,16 +22,18 @@ model Profile {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  courses      Course[]
-  bookMarks    BookMark[]
-  facultySlots ConsultationSlot[] @relation("FacultySlots")
-  bookedSlots  ConsultationSlot[] @relation("StudentBookings")
-  Booking      Booking[]
-  Assignment   Assignment[]
-  Submission   Submission[]
-  Notification Notification[]
-  Enrollment   Enrollment[]
-  Resource     Resource[]
+  courses          Course[]
+  bookMarks        BookMark[]
+  facultySlots     ConsultationSlot[] @relation("FacultySlots")
+  bookedSlots      ConsultationSlot[] @relation("StudentBookings")
+  Booking          Booking[]
+  Assignment       Assignment[]
+  Submission       Submission[]
+  Notification     Notification[]
+  Enrollment       Enrollment[]
+  Resource         Resource[]
+  Attendance       Attendance[]
+  AttendanceRecord AttendanceRecord[]
 
   @@map("profiles")
 }
@@ -41,6 +43,7 @@ model Course {
   title       String
   description String
   courseCode  String   @unique
+  section     String   @unique
   credit      String
   days        String[]
   schedule    String
@@ -48,10 +51,12 @@ model Course {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  faculty    Profile      @relation(fields: [facultyId], references: [id])
-  Assignment Assignment[]
-  Enrollment Enrollment[]
-  Resource   Resource[]
+  faculty      Profile        @relation(fields: [facultyId], references: [id])
+  Assignment   Assignment[]
+  Enrollment   Enrollment[]
+  Resource     Resource[]
+  Attendance   Attendance[]
+  Notification Notification[]
 
   @@map("courses")
 }
@@ -123,8 +128,9 @@ model Resource {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  course  Course  @relation(fields: [courseId], references: [id])
-  faculty Profile @relation(fields: [facultyId], references: [id])
+  course       Course         @relation(fields: [courseId], references: [id])
+  faculty      Profile        @relation(fields: [facultyId], references: [id])
+  Notification Notification[]
 
   @@map("resources")
 }
@@ -154,9 +160,10 @@ model Assignment {
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
-  course      Course       @relation(fields: [courseId], references: [id])
-  faculty     Profile      @relation(fields: [facultyId], references: [id])
-  submissions Submission[]
+  course       Course         @relation(fields: [courseId], references: [id])
+  faculty      Profile        @relation(fields: [facultyId], references: [id])
+  submissions  Submission[]
+  Notification Notification[]
 
   @@map("assignments")
 }
@@ -179,14 +186,52 @@ model Submission {
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  title     String
-  message   String
-  read      Boolean  @default(false)
-  createdAt DateTime @default(now()) @map("created_at")
+  id           String   @id @default(uuid())
+  userId       String?
+  title        String
+  message      String
+  assignmentId String?
+  resourceId   String?
+  createdAt    DateTime @default(now())
 
-  user Profile @relation(fields: [userId], references: [id])
+  user       Profile?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource   Resource?   @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  assignment Assignment? @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  Course     Course?     @relation(fields: [courseId], references: [id])
+  courseId   String?
 
   @@map("notifications")
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  date      DateTime
+  courseId  String
+  facultyId String
+  timeSlot  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  course  Course             @relation(fields: [courseId], references: [id])
+  faculty Profile            @relation(fields: [facultyId], references: [id])
+  records AttendanceRecord[]
+
+  @@map("attendances")
+}
+
+model AttendanceRecord {
+  id           String   @id @default(uuid())
+  attendanceId String
+  studentId    String
+  status       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  attendance Attendance @relation(fields: [attendanceId], references: [id])
+  student    Profile    @relation(fields: [studentId], references: [id])
+
+  @@unique([attendanceId, studentId])
+  @@map("attendance_records")
 }

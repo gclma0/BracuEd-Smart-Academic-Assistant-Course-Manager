@@ -32,12 +32,14 @@ export default function ChangeStatus({
   return (
     <>
       <button
+        disabled={isPending}
         className="bg-green-100 p-2 rounded-full shadow"
         onClick={() => handleStatusChange("confirmed")}
       >
         <Check className="text-green-500 w-4 h-4" />
       </button>
       <button
+        disabled={isPending}
         className="bg-red-100 p-2 rounded-full shadow"
         onClick={() => handleStatusChange("rejected")}
       >

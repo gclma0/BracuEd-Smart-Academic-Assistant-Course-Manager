@@ -39,9 +39,12 @@ const daysOfWeek = [
   { value: "SUN", label: "Sunday" },
 ];
 const timeSchedules = [
-  { value: "8.30am-9.30am", label: "8.30am-9.30am" },
-  { value: "9.35am-10.35am", label: "9.35am-10.35am" },
-  { value: "10.40am-11.40am", label: "10.40am-11.40am" },
+  { value: "8:00-9:30", label: "8:00 AM - 9:30 AM" },
+  { value: "9:45-11:15", label: "9:45 AM - 11:15 AM" },
+  { value: "11:30-1:00", label: "11:30 AM - 1:00 PM" },
+  { value: "2:00-3:30", label: "2:00 PM - 3:30 PM" },
+  { value: "3:45-5:15", label: "3:45 PM - 5:15 PM" },
+  { value: "5:30-7:00", label: "5:30 PM - 7:00 PM" },
 ];
 type CourseWithFacultyAndEnrollment = Course & {
   faculty: Pick<Profile, "name">;
@@ -59,6 +62,7 @@ export default function FacultyView({ role, courses }: FacultyViewProps) {
   const [newCourse, setNewCourse] = useState({
     title: "",
     description: "",
+    section: "",
     schedule: "",
     courseCode: "",
     credit: "",
@@ -98,6 +102,7 @@ export default function FacultyView({ role, courses }: FacultyViewProps) {
           schedule: "",
           courseCode: "",
           credit: "",
+          section: "",
         });
         setSelectedDays([]);
       } else {
@@ -143,6 +148,7 @@ export default function FacultyView({ role, courses }: FacultyViewProps) {
                       setNewCourse({ ...newCourse, title: e.target.value })
                     }
                     placeholder="e.g., Introduction to Computer Science"
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -154,6 +160,18 @@ export default function FacultyView({ role, courses }: FacultyViewProps) {
                       setNewCourse({ ...newCourse, courseCode: e.target.value })
                     }
                     placeholder="e.g., CSC 101"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="courseCode">section</Label>
+                  <Input
+                    id="courseCode"
+                    value={newCourse.section}
+                    onChange={(e) =>
+                      setNewCourse({ ...newCourse, section: e.target.value })
+                    }
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -168,6 +186,7 @@ export default function FacultyView({ role, courses }: FacultyViewProps) {
                       setNewCourse({ ...newCourse, credit: e.target.value })
                     }
                     placeholder="e.g., 3 hours"
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -183,6 +202,7 @@ export default function FacultyView({ role, courses }: FacultyViewProps) {
                     }
                     placeholder="Provide a brief description of the course"
                     rows={3}
+                    required
                   />
                 </div>
                 <div className="space-y-2">

@@ -123,6 +123,14 @@ export async function addAssignmentAction({
         topic,
       },
     });
+    await db.notification.create({
+      data: {
+        courseId: assignment.courseId,
+        userId: session.user.id,
+        title: "Post a new assignment",
+        message: `The assignment about ${assignment.title}`,
+      },
+    });
     revalidatePath(`/dashboard/course/${courseId}`);
     return { success: "Assignment post successful.", assignment };
   } catch (err) {

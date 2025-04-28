@@ -125,7 +125,7 @@ export async function addNewResourceAction({
       return { error: "Course not found." };
     }
 
-    await db.resource.create({
+    const newResource = await db.resource.create({
       data: {
         title,
         type,
@@ -134,6 +134,15 @@ export async function addNewResourceAction({
         description,
         topic,
         facultyId: session.user.id,
+      },
+    });
+
+    await db.notification.create({
+      data: {
+        userId: session.user.id,
+        courseId: newResource.courseId,
+        title: "Post a new resource",
+        message: `The resource about ${newResource.title}`,
       },
     });
 

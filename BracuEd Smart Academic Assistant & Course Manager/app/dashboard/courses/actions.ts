@@ -106,6 +106,7 @@ interface CreateCourseActionProps {
     schedule: string;
     courseCode: string;
     credit: string;
+    section: string;
   };
   days: string[];
 }
@@ -114,9 +115,11 @@ export async function createCourseAction({
   days,
 }: CreateCourseActionProps) {
   try {
-    const { courseCode, credit, description, schedule, title } = values;
+    const { courseCode, credit, description, schedule, title, section } =
+      values;
     if (
       !courseCode ||
+      !section ||
       !credit ||
       !description ||
       !schedule ||
@@ -144,14 +147,16 @@ export async function createCourseAction({
     await db.course.create({
       data: {
         title: values.title,
-        courseCode: values.courseCode,
+        courseCode: values.courseCode.toUpperCase(),
         credit: values.credit.toLowerCase(),
         description: values.description,
         schedule: values.schedule,
         days,
+        section: section.toUpperCase(),
         facultyId: session.user.id as string,
       },
     });
+
     revalidatePath("/dashboard/courses");
     return { success: "Create course successful." };
   } catch (err) {
